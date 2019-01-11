@@ -124,6 +124,189 @@ int MyOpencvFunc::OpenVideo(QString filepath)
 	cap.release();
 	return 1;
 }
+
+Mat MyOpencvFunc::regionGrowFast(const Mat &src, const Point2i seed, int throld)
+{
+	//convert src to gray for getting gray value of every pixel
+	cv::Mat gray;
+	cv::cvtColor(src,gray, cv::COLOR_RGB2GRAY);
+
+	// set every pixel to black
+	cv::Mat result = cv::Mat::zeros(src.size(), CV_8UC1);
+	if((seed.x < 0) || (seed.y < 0))
+		return result;
+	result.at<uchar>(seed.y, seed.x) = 255;
+
+	//grow direction sequenc
+	int grow_direction[8][2] = {{-1,-1}, {0,-1}, {1,-1}, {1,0},
+								{1,1}, {0,1}, {-1,1}, {-1,0}};
+	//seeds collection
+	std::vector<cv::Point2i> seeds;
+	seeds.push_back(seed);
+
+	//start growing
+	while(! seeds.empty()){
+		//get a seed
+		cv::Point2i current_seed = seeds.back();
+		seeds.pop_back();
+		//gray value of current seed
+		int seed_gray = gray.at<uchar>(current_seed.y, current_seed.x);
+
+		for(int i = 0; i < 8; ++i){
+			cv::Point2i neighbor_seed(current_seed.x + grow_direction[i][0],
+					current_seed.y + grow_direction[i][1]);
+			//check wether in image
+			if(neighbor_seed.x < 0 || neighbor_seed.y < 0 ||
+					neighbor_seed.x > (gray.cols-1) ||
+					(neighbor_seed.y > gray.rows -1)){
+				continue;
+			}
+			int value = gray.at<uchar>(neighbor_seed.y, neighbor_seed.x);
+			if((result.at<uchar>(neighbor_seed.y, neighbor_seed.x) == 0) &&
+					(abs(value - seed_gray) <= throld)){
+				result.at<uchar>(neighbor_seed.y, neighbor_seed.x) = 255;
+				seeds.push_back(neighbor_seed);
+			}
+		}
+	}
+	return result;
+}
+
+void MyOpencvFunc::baseLBP(const Mat src, Mat &dst)
+{
+	dst.create(src.size(), src.type());
+	for(int i = 1; i < src.rows- 1; i++){
+		for(int j = 1; j < src.cols- 1; j++) {
+			uchar code = 0;
+			uchar center = src.at<uchar>(i,j);
+			code |= (src.at<uchar>(i-1,j-1) >= center) << 7;
+			code |= (src.at<uchar>(i-1,j  ) >= center) << 6;
+			code |= (src.at<uchar>(i-1,j+1) >= center) << 5;
+			code |= (src.at<uchar>(i  ,j+1) >= center) << 4;
+			code |= (src.at<uchar>(i+1,j+1) >= center) << 3;
+			code |= (src.at<uchar>(i+1,j  ) >= center) << 2;
+			code |= (src.at<uchar>(i+1,j-1) >= center) << 1;
+			code |= (src.at<uchar>(i  ,j-1) >= center) << 0;
+			dst.at<uchar>(i,j) = code;
+		}
+	}
+}
+
+QImage MyOpencvFunc::cvMatToQImage(const Mat &mat)
+{
+	// 8-bits unsigned, NO. OF CHANNELS = 1
+	if(mat.type() == CV_8UC1)
+	{
+		QImage image(mat.cols, mat.rows, QImage::Format_Indexed8);
+		// Set the color table (used to translate colour indexes to qRgb values)
+		image.setColorCount(256);
+		for(int i = 0; i < 256; i++)
+		{
+			image.setColor(i, qRgb(i, i, i));
+		}
+		// Copy input Mat
+		uchar *pSrc = mat.data;
+		for(int row = 0; row < mat.rows; row ++)
+		{
+			uchar *pDest = image.scanLine(row);
+			memcpy(pDest, pSrc, mat.cols);
+			pSrc += mat.step;
+		}
+		return image;
+	}
+	// 8-bits unsigned, NO. OF CHANNELS = 3
+	else if(mat.type() == CV_8UC3)
+	{
+		// Copy input Mat
+		const uchar *pSrc = (const uchar*)mat.data;
+		// Create QImage with same dimensions as input Mat
+		QImage image(pSrc, mat.cols, mat.rows, mat.step, QImage::Format_RGB888);
+		return image.rgbSwapped();
+	}
+	else if(mat.type() == CV_8UC4)
+	{
+		qDebug() << "CV_8UC4";
+		// Copy input Mat
+		const uchar *pSrc = (const uchar*)mat.data;
+		// Create QImage with same dimensions as input Mat
+		QImage image(pSrc, mat.cols, mat.rows, mat.step, QImage::Format_ARGB32);
+		return image.copy();
+	}
+	else
+	{
+		qDebug() << "ERROR: Mat could not be converted to QImage.";
+		return QImage();
+	}
+}
+
+Mat MyOpencvFunc::QImageTocvMat(QImage image)
+{
+	cv::Mat mat;
+	qDebug() << image.format();
+	switch(image.format())
+	{
+	case QImage::Format_ARGB32:
+	case QImage::Format_RGB32:
+	case QImage::Format_ARGB32_Premultiplied:
+		mat = cv::Mat(image.height(), image.width(), CV_8UC4,
+					  (void*)image.constBits(), image.bytesPerLine());
+		break;
+	case QImage::Format_RGB888:
+		mat = cv::Mat(image.height(), image.width(), CV_8UC3,
+					  (void*)image.constBits(), image.bytesPerLine());
+		cv::cvtColor(mat, mat, CV_BGR2RGB);
+		break;
+	case QImage::Format_Indexed8:
+		mat = cv::Mat(image.height(), image.width(), CV_8UC1,
+					  (void*)image.constBits(), image.bytesPerLine());
+		break;
+	}
+	return mat;
+}
+
+void MyOpencvFunc::BGRToHSI(const Mat src, Mat &dst)
+{
+	if(src.channels() != 3)
+		return;
+	dst.create(src.rows, src.cols, src.type());
+	double r,g,b,h,s,i;
+	for(int row = 0; row < src.rows; ++row){
+		for(int col = 0; col < src.cols; ++col){
+		   r = src.at<cv::Vec3b>(row, col)[0] / 255.0;
+		   g = src.at<cv::Vec3b>(row, col)[1] / 255.0;
+		   b = src.at<cv::Vec3b>(row, col)[2] / 255.0;
+		   i = (r + b + g) / 3;
+
+		   double min = std::min(r, std::min(b, g));
+		   if(i < 0.078431)
+			   s = 0.0;
+		   else if(i > 0.920000)
+			   s = 0.0;
+		   else
+			   s = 1.0 - 3.0 * min / ( r + g + b);
+
+		  double max = std::max(r, std::max(b, g));
+		  if(max == min){
+			  h = 0.0;
+			  s = 0.0;
+		  }else {
+			   h = 0.5 *(r - g + r - b) /sqrt((r - g)*( r - g) + (g -b)*(r-b));
+			   if( h > 0.9999999999)
+				   h = 0.0;
+			   else if(h < -0.9999999999)
+				   h = 180.0;
+			   else
+				   h =  acos(h) * 180.0 /  3.14159265358979323846;
+
+			   if(b > g)
+				   h = 360.0 - h;
+		  }
+		  dst.at<cv::Vec3b>(row, col)[0] = h;
+		  dst.at<cv::Vec3b>(row, col)[1] = s * 255;
+		  dst.at<cv::Vec3b>(row, col)[2] = i * 255;
+		}
+	}
+}
 //滑动条回调函数
 static void onChange(int pos,void* userInput){
 	if(pos<=0){

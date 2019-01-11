@@ -21,5 +21,7 @@
 //Qt头文件
 #include <QString>
 #include <QDebug>
+#include <QImage>
+#include <QMouseEvent>
 
 #endif // MYHEAD_H

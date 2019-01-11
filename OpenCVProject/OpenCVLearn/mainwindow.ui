@@ -6,20 +6,131 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>561</width>
-    <height>437</height>
+    <width>654</width>
+    <height>454</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="LTlabel">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="RTlabel">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="LBlabel">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="RBlabel">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>contrast:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSlider" name="horizontalSlider_contrast">
+            <property name="maximum">
+             <number>200</number>
+            </property>
+            <property name="value">
+             <number>100</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>bright:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSlider" name="horizontalSlider_bright">
+            <property name="maximum">
+             <number>200</number>
+            </property>
+            <property name="value">
+             <number>100</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>561</width>
+     <width>654</width>
      <height>23</height>
     </rect>
    </property>
@@ -40,8 +151,21 @@
     <addaction name="actionImageWithMouseEvent"/>
     <addaction name="actionImageUsualHandle"/>
    </widget>
+   <widget class="QMenu" name="menuQImage">
+    <property name="title">
+     <string>QImage</string>
+    </property>
+    <addaction name="actionShowOnQImage"/>
+    <addaction name="actionGetPixData"/>
+    <addaction name="actionGetPixDistance"/>
+    <addaction name="actionShapeImage"/>
+    <addaction name="actionFlipImage"/>
+    <addaction name="actionInsertImage"/>
+    <addaction name="actionConvertColor"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuImage"/>
+   <addaction name="menuQImage"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -52,6 +176,64 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QDockWidget" name="dockWidget">
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="3" column="0">
+      <widget class="QPushButton" name="PyramidBtn">
+       <property name="text">
+        <string>Pyramid</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="RotateBtn">
+       <property name="text">
+        <string>Rotate</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QPushButton" name="ThresholdBtn">
+       <property name="text">
+        <string>Threshold</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QPushButton" name="LogTFBtn">
+       <property name="text">
+        <string>LogTransform</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="GammaTFBtn">
+       <property name="text">
+        <string>GammaTransform</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QPushButton" name="SeedGrowthBtn">
+       <property name="text">
+        <string>SeedGrowth</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QPushButton" name="LBPBtn">
+       <property name="text">
+        <string>LBP</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
   <action name="actionWrite">
    <property name="text">
     <string>Write</string>
@@ -85,6 +267,41 @@
   <action name="actionOpenVideo">
    <property name="text">
     <string>OpenVideo</string>
+   </property>
+  </action>
+  <action name="actionShowOnQImage">
+   <property name="text">
+    <string>ShowOnQImage</string>
+   </property>
+  </action>
+  <action name="actionGetPixData">
+   <property name="text">
+    <string>GetPixData</string>
+   </property>
+  </action>
+  <action name="actionGetPixDistance">
+   <property name="text">
+    <string>GetPixDistance</string>
+   </property>
+  </action>
+  <action name="actionShapeImage">
+   <property name="text">
+    <string>ShapeImage</string>
+   </property>
+  </action>
+  <action name="actionFlipImage">
+   <property name="text">
+    <string>FlipImage</string>
+   </property>
+  </action>
+  <action name="actionInsertImage">
+   <property name="text">
+    <string>InsertImage</string>
+   </property>
+  </action>
+  <action name="actionConvertColor">
+   <property name="text">
+    <string>ConvertColor</string>
    </property>
   </action>
  </widget>

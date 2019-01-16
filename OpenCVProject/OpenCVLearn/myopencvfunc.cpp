@@ -125,6 +125,174 @@ int MyOpencvFunc::OpenVideo(QString filepath)
 	return 1;
 }
 
+void MyOpencvFunc::GetImageData(Mat &image, int n, int type)
+{
+	for(int k = 0; k < n; k++){
+		//rand()Is a random number generating function
+		int i = rand() % image.cols;
+		int j = rand() % image.rows;
+		if(type == 0){
+			if(image.channels() == 1){  //gray image
+				image.at<uchar>(j,i) = 255;
+			}else if(image.channels() == 3) {//color image
+				image.at<cv::Vec3b>(j,i)[0] = 255;
+				image.at<cv::Vec3b>(j,i)[1] = 255;
+				image.at<cv::Vec3b>(j,i)[2] = 255;
+			}
+		}else if(type == 1){
+			uchar* data = image.ptr<uchar>(j);
+			for(int c = 0; c < image.channels(); c++ )
+				data[i*image.channels()+ c] = 255;
+		}else if(type == 2){
+			cv::Mat_<cv::Vec3b>::iterator it = image.begin<cv::Vec3b>();
+			it += (j * image.cols + i);
+			for(int c= 0; c < image.channels(); c++)
+				(*it)[c] = 255;
+		}
+	}
+}
+int GetDistance(const Vec3b &color, const Vec3b &target)
+{
+	return abs(color[0]- target[0]) + abs(color[1]-target[1]) +
+			abs(color[2]- target[2]);
+}
+void MyOpencvFunc::GetPixDistance(Mat &image, Mat &result)
+{
+	if(!image.data)
+		return;
+	if (image.channels() != 3)
+		return;
+	cv::Vec3b target(130, 190, 230);//指定颜色
+	int mindistance = 100;//指定距离
+	result.create(image.rows, image.cols, CV_8U);
+	cv::Mat_<cv::Vec3b>::const_iterator it = image.begin<cv::Vec3b>();
+	cv::Mat_<cv::Vec3b>::const_iterator itend = image.end<cv::Vec3b>();
+	cv::Mat_<uchar>::iterator itout = result.begin<uchar>();
+
+	for(; it!=itend; ++it, ++itout){
+		if(GetDistance(*it, target) < mindistance)
+			*itout = 255;
+		else *itout = 0;
+	}
+}
+
+void MyOpencvFunc::ShapeImage(const Mat &image, Mat &result)
+{
+	result.create(image.size(), image.type());
+	const int channels = image.channels() ;
+	for(int j = 1; j < image.rows -1; j++){
+		const uchar* previous = image.ptr<const uchar>(j-1); //up row
+		const uchar* current = image.ptr<const uchar>(j);  // current row
+		const uchar* next = image.ptr<const uchar>(j+1); // next row
+		uchar* output = result.ptr<uchar>(j); //output row
+		for(int i = channels; i < (image.cols -1) * channels; i++)
+			*output++ = cv::saturate_cast<uchar>(5*current[i] -
+												 current[i-channels] -
+				current[i + channels] - previous[i]- next[i]);
+	}
+	// Set the unprocess pixels to 0
+	cv::Scalar color;
+	if(image.channels() == 3)
+		color = cv::Scalar(0, 0, 0);
+	else  color = cv::Scalar(0);
+	result.row(0).setTo(color);
+	result.row(result.rows - 1).setTo(color);
+	result.col(0).setTo(color);
+	result.col(result.cols - 1).setTo(color);
+}
+
+void MyOpencvFunc::ChangeBrightAndContrast(Mat &result, double bright,
+										   double contrast, int cols)
+{
+	const int channels = result.channels() ;
+	for(int j = 0; j < result.rows; j++){
+		uchar* current = result.ptr<uchar>(j);  // current row
+		for(int i = 0; i < cols * channels; i++)
+			current[i] = cv::saturate_cast<uchar>(current[i]*
+										(contrast *0.01)+ bright);
+	}
+}
+
+void MyOpencvFunc::EqualizesHistogram(const Mat &image, Mat &result)
+{
+	if(image.channels() == 0){
+		cv::equalizeHist(image,result);
+		return;
+	}
+	const int channels = image.channels();
+	cv::Mat* imageRGB = new cv::Mat[channels];
+	split(image, imageRGB);
+	for(int i=0; i< channels;++i)
+		cv::equalizeHist(imageRGB[i],imageRGB[i]);
+	cv::merge(imageRGB, channels, result);
+	delete[] imageRGB;
+}
+
+void MyOpencvFunc::RotateImage(Mat &result, int type)
+{
+	if(type == 0){
+		cv::Point center = cv::Point(result.cols / 2, result.rows / 2);
+		double angle = -50.0;
+		double scale = 0.6;
+		cv::Mat rotate_matrix( 2, 3, CV_32FC1 );
+		//旋转
+		rotate_matrix = cv::getRotationMatrix2D(center, angle, scale);
+		cv::warpAffine(result, result, rotate_matrix, result.size());
+	}else if(type == 1){
+		cv::Point2f srcTri[3];
+		cv::Point2f dstTri[3];
+		srcTri[0] = cv::Point2d(0.0, 0.0);
+		srcTri[1] = cv::Point2d(2.0, 0.0);
+		srcTri[2] = cv::Point2d(0.0, 1.0);
+		dstTri[0] = cv::Point2d(30.0, 30.0);
+		dstTri[1] = cv::Point2d(32.0, 30.0);
+		dstTri[2] = cv::Point2d(30.0, 31.0);
+		cv::Mat matrix( 2, 3, CV_32FC1 );
+		//平移
+		matrix = cv::getAffineTransform(srcTri, dstTri);
+		cv::warpAffine(result, result, matrix, result.size());
+	}
+
+}
+
+void MyOpencvFunc::TransFormImage(Mat &result, int type)
+{
+	//log tranform
+	double c = 1.0; //尺度比例常数
+	//gamma tranform
+	double gamma = 0.4;  //伽马系数
+	double comp = 0;     //补偿系数
+
+	double gray = 0;
+	for (int i = 0; i < result.rows; i++) {
+		for (int j = 0; j < result.cols; j++) {
+			if(result.channels() == 1){
+				gray = (double) result.at<uchar>(i, j);
+				if(type == 0){
+					gray =  c * log(1.0 + gray);
+				}else if(type == 1){
+					gray =  pow((gray + comp) / 255.0, gamma) * 255.0;
+				}
+				result.at<uchar>(i, j)= cv::saturate_cast<uchar>(gray);
+			}
+			else if(result.channels() == 3){
+				for(int k = 0; k < 3; k++){
+					gray = (double)result.at<cv::Vec3b>(i, j)[k];
+					if(type == 0){
+						gray =  c * log((double)(1.5 + gray));
+					}else if(type == 1){
+						gray =  pow((gray + comp) / 255.0, gamma) * 255.0;
+					}
+					result.at<cv::Vec3b>(i, j)[k]= cv::saturate_cast<uchar>(gray);
+				}
+			}
+		}
+	}
+	//归一化处理
+	cv::normalize(result, result, 0, 255, cv::NORM_MINMAX);
+	cv::convertScaleAbs(result, result);
+}
+
 Mat MyOpencvFunc::regionGrowFast(const Mat &src, const Point2i seed, int throld)
 {
 	//convert src to gray for getting gray value of every pixel

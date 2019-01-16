@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>654</width>
-    <height>454</height>
+    <height>464</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -151,21 +151,8 @@
     <addaction name="actionImageWithMouseEvent"/>
     <addaction name="actionImageUsualHandle"/>
    </widget>
-   <widget class="QMenu" name="menuQImage">
-    <property name="title">
-     <string>QImage</string>
-    </property>
-    <addaction name="actionShowOnQImage"/>
-    <addaction name="actionGetPixData"/>
-    <addaction name="actionGetPixDistance"/>
-    <addaction name="actionShapeImage"/>
-    <addaction name="actionFlipImage"/>
-    <addaction name="actionInsertImage"/>
-    <addaction name="actionConvertColor"/>
-   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuImage"/>
-   <addaction name="menuQImage"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -182,52 +169,87 @@
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="3" column="0">
-      <widget class="QPushButton" name="PyramidBtn">
-       <property name="text">
-        <string>Pyramid</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QPushButton" name="RotateBtn">
-       <property name="text">
-        <string>Rotate</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
+     <item row="9" column="0">
       <widget class="QPushButton" name="ThresholdBtn">
        <property name="text">
-        <string>Threshold</string>
+        <string>Threshold_m</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QPushButton" name="LogTFBtn">
+     <item row="7" column="0">
+      <widget class="QPushButton" name="TransFormBtn">
        <property name="text">
-        <string>LogTransform</string>
+        <string>Transform_m</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QPushButton" name="GammaTFBtn">
+     <item row="11" column="0">
+      <widget class="QPushButton" name="LBPBtn">
        <property name="text">
-        <string>GammaTransform</string>
+        <string>LBP</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
+     <item row="10" column="0">
       <widget class="QPushButton" name="SeedGrowthBtn">
        <property name="text">
         <string>SeedGrowth</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="0">
-      <widget class="QPushButton" name="LBPBtn">
+     <item row="2" column="0">
+      <widget class="QPushButton" name="ShapeBtn">
        <property name="text">
-        <string>LBP</string>
+        <string>Shape</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QPushButton" name="FlipBtn">
+       <property name="text">
+        <string>Flip</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QPushButton" name="ConvertBtn">
+       <property name="text">
+        <string>Convert</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QPushButton" name="InsertBtn">
+       <property name="text">
+        <string>Insert</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QPushButton" name="PyramidBtn">
+       <property name="text">
+        <string>Pyramid_m</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QPushButton" name="RotateBtn">
+       <property name="text">
+        <string>Rotate_m</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="GetPixDataBtn">
+       <property name="text">
+        <string>GetPixData</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QPushButton" name="GetPixDisBtn">
+       <property name="text">
+        <string>GetPixDistance</string>
        </property>
       </widget>
      </item>
@@ -267,41 +289,6 @@
   <action name="actionOpenVideo">
    <property name="text">
     <string>OpenVideo</string>
-   </property>
-  </action>
-  <action name="actionShowOnQImage">
-   <property name="text">
-    <string>ShowOnQImage</string>
-   </property>
-  </action>
-  <action name="actionGetPixData">
-   <property name="text">
-    <string>GetPixData</string>
-   </property>
-  </action>
-  <action name="actionGetPixDistance">
-   <property name="text">
-    <string>GetPixDistance</string>
-   </property>
-  </action>
-  <action name="actionShapeImage">
-   <property name="text">
-    <string>ShapeImage</string>
-   </property>
-  </action>
-  <action name="actionFlipImage">
-   <property name="text">
-    <string>FlipImage</string>
-   </property>
-  </action>
-  <action name="actionInsertImage">
-   <property name="text">
-    <string>InsertImage</string>
-   </property>
-  </action>
-  <action name="actionConvertColor">
-   <property name="text">
-    <string>ConvertColor</string>
    </property>
   </action>
  </widget>

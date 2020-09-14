@@ -17,6 +17,7 @@
 #include "opencv2/opencv.hpp"
 #include "opencv/highgui.h"
 #include "opencv/cxcore.hpp"
+#include "opencv2/calib3d.hpp"
 
 //Qt头文件
 #include <QString>

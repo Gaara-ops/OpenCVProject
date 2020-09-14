@@ -8,7 +8,7 @@ QT       += core gui
 #引入c++11
 CONFIG  += C++11
 
-OpenCV_DIR = F:/opencv3.1/opencv-libreleaseqt
+OpenCV_DIR = F:/opencv/opencv-libreleaseqt
 #OpenCV_DIR = F:/opencv3.1/opencv-libdebug
 #引入头文件的路径
 INCLUDEPATH += $${OpenCV_DIR}/include

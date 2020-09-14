@@ -40,6 +40,9 @@ public:
 	cv::Mat QImageTocvMat(QImage image);
 	//颜色转换RGB->HSI
 	void BGRToHSI(const cv::Mat src, cv::Mat &dst);
+    //双线性插值
+    void bilinearInterpolation(const cv::Mat& input, cv::Mat& output,
+                               double fx, double fy);
 };
 
 #endif // MYOPENCVFUNC_H

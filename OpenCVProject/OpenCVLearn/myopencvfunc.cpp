@@ -65,7 +65,24 @@ void MyOpencvFunc::ShowImage(QString filepath, int way, bool showSmooth)
 		imshow(windowname,m_img);
 		waitKey(0);
 		destroyWindow(windowname);
-	}
+    }else if(way == 3){
+        //已灰度图像读入
+        String filename = filepath.toStdString();
+        Mat img = imread(filename,0);
+        String tmpwname = "gray window";
+        namedWindow(tmpwname);
+        imshow(tmpwname,img);
+        // Display Overlay
+        displayOverlay(tmpwname, "Overlay 5secs", 5000);
+        // Display Status Bar
+        displayStatusBar(tmpwname, "Status bar 5secs", 5000);
+        // Save window parameters
+        saveWindowParameters(tmpwname);
+        // load Window parameters
+        loadWindowParameters(tmpwname);
+        waitKey(0);
+        destroyWindow(tmpwname);
+    }
 }
 
 void MyOpencvFunc::ShowImageWithMouse(QString filepath)
@@ -127,6 +144,14 @@ int MyOpencvFunc::OpenVideo(QString filepath)
 
 void MyOpencvFunc::GetImageData(Mat &image, int n, int type)
 {
+    /*获取图像指定点的像素*/
+    int myRow=image.cols-1;
+    int myCol=image.rows-1;
+    Vec3b pixel= image.at<Vec3b>(myRow, myCol);
+    std::cout << "Pixel value (B,G,R): (" << (int)pixel[0] << "," <<
+            (int)pixel[1] << "," << (int)pixel[2] << ")" << std::endl;
+
+    //设置一些图像中的点为白色
 	for(int k = 0; k < n; k++){
 		//rand()Is a random number generating function
 		int i = rand() % image.cols;
@@ -473,7 +498,58 @@ void MyOpencvFunc::BGRToHSI(const Mat src, Mat &dst)
 		  dst.at<cv::Vec3b>(row, col)[1] = s * 255;
 		  dst.at<cv::Vec3b>(row, col)[2] = i * 255;
 		}
-	}
+    }
+}
+
+void MyOpencvFunc::bilinearInterpolation(const Mat &input, Mat &output,
+                                         double fx, double fy)
+{
+    //recreate output
+    int width = input.cols * fx;
+    int height = input.rows*fy;
+    output.create(height, width, input.type());
+    for(int row =0; row< output.rows;++row){
+        float temp_row = (float)((row + 0.5)*(1/fy)- 0.5);
+        int in_row = cvFloor(temp_row);
+        temp_row -= in_row;
+        in_row = std::min(in_row, input.rows - 2);
+        in_row = std::max(0, in_row);
+        short cbufy[2];
+        cbufy[0]= cv::saturate_cast<short>((1.0f- temp_row)*2048);
+        cbufy[1]= 2048 - cbufy[0];
+        for(int column = 0; column < output.cols; ++column){
+            float temp_column = (float)((column + 0.5)*(1/fx) - 0.5);
+            int in_column = cvFloor (temp_column);
+            temp_column -= in_column;
+            if(in_column< 0){
+                temp_column = 0;
+                in_column = 0;
+            }
+            if(in_column >= (input.cols - 1)){
+                 temp_column = 0;
+                 in_column = input.cols -2;
+            }
+            short cbufx[2];
+            cbufx[0]= cv::saturate_cast<short>((1.0f-temp_column)* 2048);
+            cbufx[1] = 2048 -cbufx[0];
+
+            uchar* out_data = output.ptr<uchar>(row);  // current row of output
+            out_data += (column*output.channels());
+            const uchar* in_data00 = input.ptr<const uchar>(in_row);
+            in_data00 += (in_column*input.channels());
+            const uchar* in_data01 = input.ptr<const uchar>(in_row + 1);
+            in_data01 += (in_column*input.channels());
+            const uchar* in_data10 = input.ptr<const uchar>(in_row);
+            in_data10 += ((in_column+1)*input.channels());
+            const uchar* in_data11 = input.ptr<const uchar>(in_row + 1);
+            in_data11 += ((in_column+1)*input.channels());
+            for(int k = 0; k < output.channels(); ++k)
+                *(out_data + k) = (*(in_data00+ k)*cbufx[0]*cbufy[0]
+                        + *(in_data01 + k)*cbufx[0]*cbufy[1]
+                        +  *(in_data10 + k)*cbufx[1]*cbufy[0]
+                        + *(in_data11 + k)*cbufx[1]*cbufy[1]) >> 22;
+        }
+    }
 }
 //滑动条回调函数
 static void onChange(int pos,void* userInput){

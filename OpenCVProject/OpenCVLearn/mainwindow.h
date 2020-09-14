@@ -3,9 +3,10 @@
 
 #include <QMainWindow>
 #include "myhead.h"
-
+#include <iostream>
 #include "myopencvfunc.h"
 using namespace cv;
+using namespace std;
 
 namespace Ui {
 class MainWindow;
@@ -61,10 +62,12 @@ private slots:
 	void on_ShapeBtn_clicked();
 	//获取图像每一点颜色到指定R G B指定距离范围内的颜色
 	void on_GetPixDisBtn_clicked();
-	//获取Mat每一点像素值
+    //获取图像Mat每一点像素值
 	void on_GetPixDataBtn_clicked();
 	//log and gama transform
 	void on_TransFormBtn_clicked();
+    //双线性插值--缩放图片
+    void on_BilinearInterpolationBtn_clicked();
 
 private:
 	//均衡图像直方图

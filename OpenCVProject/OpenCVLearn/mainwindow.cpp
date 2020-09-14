@@ -80,7 +80,8 @@ void MainWindow::on_actionRead_triggered()
 void MainWindow::on_actionShowImage_triggered()
 {
 	QString filepath = "./lena.jpg";
-	m_myFunc.ShowImage(filepath,1);
+//    m_myFunc.ShowImage(filepath,1);
+    m_myFunc.ShowImage(filepath,3);//以灰度图读入显示
 }
 
 void MainWindow::on_actionShowImageDeal_triggered()
@@ -270,10 +271,12 @@ void MainWindow::on_GetPixDataBtn_clicked()
 	m_myFunc.GetImageData(resultRT,150,0);
 	QImage imgRT = m_myFunc.cvMatToQImage(resultRT);
 	ui->RTlabel->setPixmap(QPixmap::fromImage(imgRT));
+
 	cv::Mat resultLB = m_image.clone();
 	m_myFunc.GetImageData(resultLB,150,1);
 	QImage imgLB = m_myFunc.cvMatToQImage(resultLB);
 	ui->LBlabel->setPixmap(QPixmap::fromImage(imgLB));
+
 	cv::Mat resultRB = m_image.clone();
 	m_myFunc.GetImageData(resultRB,150,2);
 	QImage imgRB = m_myFunc.cvMatToQImage(resultRB);
@@ -290,4 +293,16 @@ void MainWindow::on_TransFormBtn_clicked()
 	}
 	transformtype++;
 	ShowImageMat(result);
+}
+
+void MainWindow::on_BilinearInterpolationBtn_clicked()
+{
+    cv::Mat result;
+    if(transformtype%2 == 0){
+        m_myFunc.bilinearInterpolation(m_image, result, 0.5, 0.5);
+    }else if(transformtype%2 == 1){
+        cv::resize(m_image, result,cv::Size(), 0.5, 0.5);
+    }
+    transformtype++;
+    ShowImageMat(result,1);
 }
